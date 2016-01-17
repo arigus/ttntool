@@ -13,6 +13,7 @@ import (
 	MQTT "git.eclipse.org/gitroot/paho/org.eclipse.paho.mqtt.golang.git"
 	"github.com/TheThingsNetwork/server-shared"
 	"github.com/apex/log"
+	"github.com/htdvisser/ttntool/util"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -74,7 +75,9 @@ func init() {
 func setupMQTT() {
 	broker := fmt.Sprintf("tcp://%s:1883", viper.GetString("broker"))
 	opts := MQTT.NewClientOptions().AddBroker(broker)
-	opts.SetClientID("ttntool")
+
+	clientID := fmt.Sprintf("ttntool-%d", util.RandString(15))
+	opts.SetClientID(clientID)
 
 	opts.SetOnConnectHandler(func(client *MQTT.Client) {
 		log.Info("Connected to The Things Network")
