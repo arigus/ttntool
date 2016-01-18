@@ -78,7 +78,7 @@ func setupMQTT() {
 	broker := fmt.Sprintf("tcp://%s:1883", viper.GetString("broker"))
 	opts := MQTT.NewClientOptions().AddBroker(broker)
 
-	clientID := fmt.Sprintf("ttntool-%d", util.RandString(15))
+	clientID := fmt.Sprintf("ttntool-%s", util.RandString(15))
 	opts.SetClientID(clientID)
 
 	opts.SetKeepAlive(20)
