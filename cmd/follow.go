@@ -22,6 +22,7 @@ import (
 var (
 	followAll bool
 	showRaw   bool
+	showMeta  bool
 )
 
 var mqttClient *MQTT.Client
@@ -70,6 +71,7 @@ func init() {
 
 	followCmd.Flags().BoolVar(&followAll, "all", false, "Follow all devices")
 	followCmd.Flags().BoolVar(&showRaw, "raw", false, "Show raw data")
+	followCmd.Flags().BoolVar(&showMeta, "meta", false, "Show metadata")
 }
 
 func setupMQTT() {
@@ -134,8 +136,19 @@ func handleMessage(client *MQTT.Client, msg MQTT.Message) {
 		"devAddr": packet.NodeEui,
 	})
 
+	if showMeta {
+		ctx = ctx.WithFields(log.Fields{
+			"gatewayEui": packet.GatewayEui,
+			"time":       packet.Time,
+			"frequency":  *packet.Frequency,
+			"dataRate":   packet.DataRate,
+			"rssi":       *packet.Rssi,
+			"snr":        *packet.Snr,
+		})
+	}
+
 	if showRaw {
-		ctx = ctx.WithField("raw_data", fmt.Sprintf("%x", data))
+		ctx = ctx.WithField("data", fmt.Sprintf("%x", data))
 	}
 
 	// Check for unprintable characters
