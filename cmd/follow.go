@@ -79,6 +79,8 @@ func setupMQTT() {
 	clientID := fmt.Sprintf("ttntool-%d", util.RandString(15))
 	opts.SetClientID(clientID)
 
+	opts.SetKeepAlive(20)
+
 	opts.SetOnConnectHandler(func(client *MQTT.Client) {
 		log.Info("Connected to The Things Network")
 		subscribeToDevices()
