@@ -23,6 +23,7 @@ var (
 	followAll bool
 	showRaw   bool
 	showMeta  bool
+	gateway   string
 )
 
 var mqttClient *MQTT.Client
@@ -72,6 +73,7 @@ func init() {
 	followCmd.Flags().BoolVar(&followAll, "all", false, "Follow all devices")
 	followCmd.Flags().BoolVar(&showRaw, "raw", false, "Show raw data")
 	followCmd.Flags().BoolVar(&showMeta, "meta", false, "Show metadata")
+	followCmd.Flags().StringVar(&gateway, "gateway", "", "Filter for one gateway")
 }
 
 func setupMQTT() {
@@ -122,6 +124,11 @@ func handleMessage(client *MQTT.Client, msg MQTT.Message) {
 	err := json.Unmarshal(msg.Payload(), &packet)
 	if err != nil {
 		log.WithField("topic", msg.Topic()).WithError(err).Warn("Failed to unmarshal JSON.")
+		return
+	}
+
+	// Filter messages by gateway
+	if gateway != "" && packet.GatewayEui != gateway {
 		return
 	}
 
