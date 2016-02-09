@@ -20,10 +20,11 @@ import (
 
 // CLI Variables
 var (
-	followAll bool
-	showRaw   bool
-	showMeta  bool
-	gateway   string
+	followAll  bool
+	showRaw    bool
+	showTiming bool
+	showMeta   bool
+	gateway    string
 )
 
 var mqttClient *MQTT.Client
@@ -72,6 +73,7 @@ func init() {
 
 	followCmd.Flags().BoolVar(&followAll, "all", false, "Follow all devices")
 	followCmd.Flags().BoolVar(&showRaw, "raw", false, "Show raw data")
+	followCmd.Flags().BoolVar(&showTiming, "airtime", false, "Show airtime of packet")
 	followCmd.Flags().BoolVar(&showMeta, "meta", false, "Show metadata")
 	followCmd.Flags().StringVar(&gateway, "gateway", "", "Filter for one gateway")
 }
@@ -156,6 +158,16 @@ func handleMessage(client *MQTT.Client, msg MQTT.Message) {
 
 	if showRaw {
 		ctx = ctx.WithField("data", fmt.Sprintf("%x", data))
+	}
+
+	if showTiming {
+		rawData, err := base64.StdEncoding.DecodeString(packet.Data)
+		if err == nil {
+			airtime, err := util.CalculatePacketTime(len(rawData), packet.DataRate)
+			if err == nil {
+				ctx = ctx.WithField("airtime", fmt.Sprintf("%.1f ms", airtime))
+			}
+		}
 	}
 
 	// Check for unprintable characters

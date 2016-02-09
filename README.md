@@ -29,6 +29,7 @@ Usage:
   ttntool follow devAddr [devAddr [...]] [flags]
 
 Flags:
+  --airtime          Show airtime of packet
   --all              Follow all devices
   --gateway string   Filter for one gateway
   --meta             Show metadata
